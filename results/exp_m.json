@@ -1,0 +1,47 @@
+[
+ {
+  "mutant": "hang_so_7281",
+  "file": "simd_lane.v",
+  "bad": 111,
+  "sc_err": 111,
+  "extra": 0,
+  "nout": 900,
+  "expected": 900
+ },
+ {
+  "mutant": "mat_na_cot_tu_-1",
+  "file": "controller.v",
+  "bad": -1,
+  "sc_err": 888,
+  "extra": 30,
+  "nout": 930,
+  "expected": 900
+ },
+ {
+  "mutant": "mat_na_dong_tu_1",
+  "file": "controller.v",
+  "bad": -1,
+  "sc_err": 881,
+  "extra": 30,
+  "nout": 930,
+  "expected": 900
+ },
+ {
+  "mutant": "line_buffer_thieu_1_tu",
+  "file": "top.v",
+  "bad": 883,
+  "sc_err": 883,
+  "extra": 0,
+  "nout": 900,
+  "expected": 900
+ },
+ {
+  "mutant": "cua_so_lech_cot",
+  "file": "window_3x3.v",
+  "bad": 406,
+  "sc_err": 406,
+  "extra": 0,
+  "nout": 900,
+  "expected": 900
+ }
+]

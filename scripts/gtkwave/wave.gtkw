@@ -1,0 +1,23 @@
+[*]
+[*] GTKWave - anh 8x8, P = 4 lane (lane 2 theo doi tung stage)
+[*]
+[dumpfile] "build/wave_p4.vcd"
+[timestart] 0
+@28
+tb_top.clk
+tb_top.rst_n
+tb_top.in_valid
+@22
+tb_top.in_pixels[31:0]
+tb_top.dut.ctrl.mask[3:0]
+tb_top.dut.win.valid[3:0]
+@28
+tb_top.dut.arr.lane[2].u.vin
+tb_top.dut.arr.lane[2].u.s1_v
+tb_top.dut.arr.lane[2].u.s2_v
+tb_top.dut.arr.lane[2].u.s3_v
+tb_top.dut.arr.lane[2].u.s4_v
+tb_top.dut.arr.lane[2].u.vout
+@22
+tb_top.out_valid[3:0]
+tb_top.out_pixels[31:0]

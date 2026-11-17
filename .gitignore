@@ -1,0 +1,21 @@
+# Tệp sinh ra khi chạy mô phỏng và dựng báo cáo
+build/
+build_thesis/
+__pycache__/
+*.pyc
+*.vcd
+*.vvp
+
+# Dữ liệu ảnh thật: không đưa vào kho mã (dung lượng lớn)
+data/*
+!data/README.md
+
+# Môi trường ảo Python
+.venv/
+venv/
+
+# Hệ điều hành và trình soạn thảo
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

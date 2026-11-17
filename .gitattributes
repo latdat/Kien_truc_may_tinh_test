@@ -1,0 +1,7 @@
+# Chuẩn hóa ký tự xuống dòng khi clone trên Windows, Linux, macOS
+* text=auto
+*.v text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.png binary
+*.pdf binary
