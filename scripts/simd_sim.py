@@ -13,7 +13,12 @@ RTL = ["pipe_reg.v", "line_buffer.v", "controller.v", "window_3x3.v",
 
 
 def make_image(kind, w, h, seed=2026):
-    """Ảnh xám 8 bit h x w. Các loại: gradient, checker, noise, zero, full, speckle."""
+    """Ảnh xám 8 bit h x w. Các loại: gradient, checker, noise, zero, full, speckle, hoặc ảnh SAR thật trong data/."""
+    sar_file = ROOT / "data" / f"{kind}_{w}.npy"
+    if sar_file.exists():
+        arr = np.load(sar_file)
+        if arr.shape == (h, w):
+            return arr.astype(np.uint8)
     rng = np.random.default_rng(seed)
     if kind == "gradient":
         y, x = np.mgrid[0:h, 0:w]

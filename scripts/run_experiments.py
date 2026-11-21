@@ -24,9 +24,14 @@ def exp_d():
     cases = [("gradient", 64, 64, "gia_lap"), ("checker", 64, 64, "gia_lap"), ("noise", 64, 64, "gia_lap"),
              ("zero", 64, 64, "gia_lap"), ("full", 64, 64, "gia_lap"), ("noise", 256, 256, "gia_lap"),
              ("gradient", 48, 20, "gia_lap"), ("noise", 48, 20, "gia_lap"),
-             ("speckle", 64, 64, "speckle"), ("speckle", 256, 256, "speckle")]
+             ("speckle", 64, 64, "speckle"), ("speckle", 256, 256, "speckle"),
+             ("sar_hanoi_urban", 256, 256, "sar_that"), ("sar_hanoi_urban", 512, 512, "sar_that"),
+             ("sar_coastline", 256, 256, "sar_that"), ("sar_coastline", 512, 512, "sar_that")]
     rows = []
     for kind, w, h, group in cases:
+        if group == "sar_that" and not (S.ROOT / "data" / f"{kind}_{w}.npy").exists():
+            print("D bỏ qua (không có ảnh SAR trong data/):", kind, w, h, flush=True)
+            continue
         img = S.make_image(kind, w, h)
         ref = S.golden(img)
         for p in LANES:

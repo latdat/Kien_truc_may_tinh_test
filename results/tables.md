@@ -8,6 +8,9 @@
 | Ảnh nền nhân nhiễu (mô phỏng) | 1 | 68.360 | 0 | 0 | 0,0 |
 | Ảnh nền nhân nhiễu (mô phỏng) | 2 | 68.360 | 0 | 0 | 0,0 |
 | Ảnh nền nhân nhiễu (mô phỏng) | 4 | 68.360 | 0 | 0 | 0,0 |
+| Ảnh radar SAR thực tế (Sentinel-1) | 1 | 649.232 | 0 | 0 | 0,0 |
+| Ảnh radar SAR thực tế (Sentinel-1) | 2 | 649.232 | 0 | 0 | 0,0 |
+| Ảnh radar SAR thực tế (Sentinel-1) | 4 | 649.232 | 0 | 0 | 0,0 |
 
 ### 5.1b Từng ảnh
 
@@ -23,6 +26,10 @@
 | noise | 48×20 | 828 | 0 / 0 / 0 | 0 |
 | nền nhân nhiễu | 64×64 | 3.844 | 0 / 0 / 0 | 0 |
 | nền nhân nhiễu | 256×256 | 64.516 | 0 / 0 / 0 | 0 |
+| SAR Hà Nội (thật) | 256×256 | 64.516 | 0 / 0 / 0 | 0 |
+| SAR Hà Nội (thật) | 512×512 | 260.100 | 0 / 0 / 0 | 0 |
+| SAR ven biển (thật) | 256×256 | 64.516 | 0 / 0 / 0 | 0 |
+| SAR ven biển (thật) | 512×512 | 260.100 | 0 / 0 / 0 | 0 |
 
 ### 5.2 Hiệu năng (256×256)
 
@@ -71,7 +78,7 @@ Ngắt quãng ngẫu nhiên: mỗi chu kỳ, bộ cấp dữ liệu bị ngắt 
 | Ngắt quãng, 70% | 2 | 2 | 7.688 | 0 | 0 | 0,58 |
 | Ngắt quãng, 30% | 4 | 2 | 7.688 | 0 | 0 | 2,64 |
 | Ngắt quãng, 70% | 4 | 2 | 7.688 | 0 | 0 | 1,23 |
-| B thấp và ngắt quãng, 50%, B = 2 | 4 | 1 | 7.688 | 0 | 0 | 0,95 |
+| B thấp và ngắt quãng (2 khung), 50%, B = 2 | 4 | 1 | 7.688 | 0 | 0 | 0,95 |
 | 3 khung liên tiếp, 0% | 1 | 1 | 11.532 | 0 | 0 | 0,94 |
 | 3 khung liên tiếp, 50% | 1 | 1 | 11.532 | 0 | 0 | 0,47 |
 | 3 khung liên tiếp, 0% | 2 | 1 | 11.532 | 0 | 0 | 1,88 |

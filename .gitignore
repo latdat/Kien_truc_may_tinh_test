@@ -19,3 +19,25 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# Không đưa lên kho: tài liệu nội bộ, slide, hình, script vẽ hình/dựng tài liệu, chuẩn bị ảnh thật
+bao_cao.md
+PHAN_CONG.md
+ontap_van_dap.md
+On_tap_van_dap.pdf
+Bao_cao/
+figures/
+data/
+results/sar_eval.json
+scripts/build_thesis.py
+scripts/build_slides.py
+scripts/slide_kit.py
+scripts/check_slides.py
+scripts/export_pptx_pdf.ps1
+scripts/make_figures.py
+scripts/make_demo.py
+scripts/make_architecture.py
+scripts/make_wave_vcd.py
+scripts/gtkwave/
+scripts/prepare_sar_data.py
+scripts/danh_gia_sar.py
