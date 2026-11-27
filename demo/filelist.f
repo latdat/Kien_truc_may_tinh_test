@@ -1,0 +1,9 @@
+rtl/pipe_reg.v
+rtl/line_buffer.v
+rtl/controller.v
+rtl/window_3x3.v
+rtl/simd_lane.v
+rtl/gauss_lane.v
+rtl/simd_array.v
+rtl/top.v
+tb/tb_top.v

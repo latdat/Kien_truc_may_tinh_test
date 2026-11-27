@@ -41,3 +41,7 @@ scripts/make_wave_vcd.py
 scripts/gtkwave/
 scripts/prepare_sar_data.py
 scripts/danh_gia_sar.py
+scripts/so_voi_thu_vien.py
+results/so_thu_vien.json
+scripts/make_dataflow.py
+BANG_NGUOI_NOI.md

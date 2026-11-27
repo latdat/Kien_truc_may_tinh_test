@@ -1,4 +1,6 @@
 numpy>=1.26,<3
+# Ảnh chuẩn để kiểm mạch: scipy.signal.convolve2d (scripts/simd_sim.py, hàm golden)
+scipy>=1.11,<2
 matplotlib>=3.8,<4
 # Chỉ cần để dựng PDF báo cáo (scripts/build_thesis.py); cần thêm pandoc và một trình duyệt Chromium
 pymupdf>=1.24.3,<2

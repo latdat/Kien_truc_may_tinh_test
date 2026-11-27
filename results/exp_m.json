@@ -6,7 +6,8 @@
   "sc_err": 111,
   "extra": 0,
   "nout": 900,
-  "expected": 900
+  "expected": 900,
+  "x_out": 0
  },
  {
   "mutant": "mat_na_cot_tu_-1",
@@ -15,7 +16,8 @@
   "sc_err": 888,
   "extra": 30,
   "nout": 930,
-  "expected": 900
+  "expected": 900,
+  "x_out": 0
  },
  {
   "mutant": "mat_na_dong_tu_1",
@@ -24,7 +26,8 @@
   "sc_err": 881,
   "extra": 30,
   "nout": 930,
-  "expected": 900
+  "expected": 900,
+  "x_out": 0
  },
  {
   "mutant": "line_buffer_thieu_1_tu",
@@ -33,7 +36,8 @@
   "sc_err": 883,
   "extra": 0,
   "nout": 900,
-  "expected": 900
+  "expected": 900,
+  "x_out": 0
  },
  {
   "mutant": "cua_so_lech_cot",
@@ -42,6 +46,68 @@
   "sc_err": 406,
   "extra": 0,
   "nout": 900,
-  "expected": 900
+  "expected": 900,
+  "x_out": 0
+ },
+ {
+  "mutant": "simd_array_lap_cot",
+  "file": "simd_array.v",
+  "bad": 869,
+  "sc_err": 869,
+  "extra": 0,
+  "nout": 900,
+  "expected": 900,
+  "x_out": 0
+ },
+ {
+  "mutant": "pipe_reg_valid_luon_1",
+  "file": "pipe_reg.v",
+  "bad": -1,
+  "sc_err": 889,
+  "extra": 80,
+  "nout": 980,
+  "expected": 900,
+  "x_out": 26
+ },
+ {
+  "mutant": "gauss_tam_nhan_2",
+  "file": "gauss_lane.v",
+  "bad": 884,
+  "sc_err": 884,
+  "extra": 0,
+  "nout": 900,
+  "expected": 900,
+  "x_out": 0,
+  "ops": [
+   1
+  ]
+ },
+ {
+  "mutant": "gauss_dich_3",
+  "file": "gauss_lane.v",
+  "bad": 900,
+  "sc_err": 900,
+  "extra": 0,
+  "nout": 900,
+  "expected": 900,
+  "x_out": 0,
+  "ops": [
+   1
+  ]
+ },
+ {
+  "mutant": "op_pipe_lech_1_nhip",
+  "file": "simd_array.v",
+  "bad": 8,
+  "sc_err": 8,
+  "extra": 0,
+  "nout": 2700,
+  "expected": 2700,
+  "x_out": 0,
+  "ops": [
+   0,
+   1,
+   0
+  ]
  }
 ]

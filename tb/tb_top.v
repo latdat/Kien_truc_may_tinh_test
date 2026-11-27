@@ -1,6 +1,8 @@
 // Testbench toàn hệ thống.
 // Tham số: P (số lane), W, H, F (số khung ảnh liên tiếp), B (pixel cấp mỗi chu kỳ, B <= P),
-// STALL (xác suất %, mỗi chu kỳ bộ cấp dữ liệu bị ngắt quãng), SEED (hạt giống bộ sinh ngẫu nhiên).
+// STALL (xác suất %, mỗi chu kỳ bộ cấp dữ liệu bị ngắt quãng), SEED (hạt giống bộ sinh ngẫu nhiên),
+// OPS (mặt nạ chế độ lọc theo khung: bit f = 0 lọc trung bình, 1 lọc Gaussian cho khung f; F <= 32).
+// Chế độ chỉ đổi giữa các khung, không đổi trong một khung.
 // Plusarg: +in=<hex ảnh vào> +out=<hex ảnh ra> [+exp=<hex ảnh chuẩn, để tự kiểm>] [+vcd=<file dạng sóng>].
 // Đếm chu kỳ ở một bộ theo dõi riêng, lấy mẫu in_valid/out_valid ở cùng cạnh clock.
 `timescale 1ns/1ps
@@ -12,6 +14,7 @@ module tb_top;
     parameter B     = P;
     parameter STALL = 0;
     parameter SEED  = 32'h1234abcd;
+    parameter OPS   = 0;
 
     localparam NIN   = W * H * F;
     localparam NOUT  = (W - 2) * (H - 2) * F;
@@ -20,12 +23,13 @@ module tb_top;
     reg                clk = 0;
     reg                rst_n = 0;
     reg                in_valid = 0;
+    reg                op_mode = 0;
     reg  [8*P-1:0]     in_pixels = 0;
     wire [P-1:0]       out_valid;
     wire [8*P-1:0]     out_pixels;
 
     top #(.P(P), .W(W), .H(H)) dut (
-        .clk(clk), .rst_n(rst_n), .in_valid(in_valid), .in_pixels(in_pixels),
+        .clk(clk), .rst_n(rst_n), .in_valid(in_valid), .op_mode(op_mode), .in_pixels(in_pixels),
         .out_valid(out_valid), .out_pixels(out_pixels));
 
     always #5 clk = ~clk;
@@ -40,6 +44,7 @@ module tb_top;
     integer cyc, first_in, first_out, last_out, nout, extra, sc_err;
     integer fd;
     reg [31:0] rng;
+    wire [31:0] opsv = OPS;
     reg        stall_now;
 
     // Bộ cấp dữ liệu: mỗi chu kỳ cộng B pixel vào "tín dụng"; đủ P pixel thì phát một từ.
@@ -58,6 +63,7 @@ module tb_top;
             if (!stall_now) credit = credit + B;
             if (!stall_now && word_idx < NWORD && credit >= P) begin
                 in_valid <= 1;
+                op_mode  <= opsv[word_idx / (NWORD / F)];
                 for (k = 0; k < P; k = k + 1)
                     in_pixels[8*k +: 8] <= img[word_idx*P + k];
                 word_idx = word_idx + 1;
@@ -115,8 +121,8 @@ module tb_top;
         fd = $fopen(fout, "w");
         for (k = 0; k < NOUT; k = k + 1) $fdisplay(fd, "%02x", res[k]);
         $fclose(fd);
-        $display("RESULT P=%0d W=%0d H=%0d F=%0d B=%0d stall=%0d first_in=%0d first_out=%0d last_out=%0d nout=%0d extra=%0d sc_err=%0d have_exp=%0d latency=%0d total=%0d",
-                 P, W, H, F, B, STALL, first_in, first_out, last_out, nout, extra, sc_err, have_exp,
+        $display("RESULT P=%0d W=%0d H=%0d F=%0d B=%0d stall=%0d ops=%0d first_in=%0d first_out=%0d last_out=%0d nout=%0d extra=%0d sc_err=%0d have_exp=%0d latency=%0d total=%0d",
+                 P, W, H, F, B, STALL, OPS, first_in, first_out, last_out, nout, extra, sc_err, have_exp,
                  first_out - first_in, last_out - first_in + 1);
         $finish;
     end

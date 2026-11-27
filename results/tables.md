@@ -97,3 +97,8 @@ Phép thử đối chứng: chèn một lỗi vào bản sao mã Verilog (P = 4,
 | Mặt nạ dòng: r ≥ 2 → r ≥ 1 | controller.v | lệch số lượng pixel ra | 881 | 30 |
 | Line buffer ngắn hơn 1 từ | top.v | 883 | 883 | 0 |
 | Cửa sổ dịch sai một pixel | window_3x3.v | 406 | 406 | 0 |
+| Lane đọc nhầm cột s+1 thay s+2 | simd_array.v | 869 | 869 | 0 |
+| pipe_reg: valid luôn bằng 1 | pipe_reg.v | lệch số lượng pixel ra | 889 | 80 |
+| Gaussian: tâm nhân 2 thay vì 4 | gauss_lane.v | 884 | 884 | 0 |
+| Gaussian: dịch phải 3 thay vì 4 | gauss_lane.v | 900 | 900 | 0 |
+| op_mode đến lệch 1 nhịp | simd_array.v | 8 | 8 | 0 |

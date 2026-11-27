@@ -1,15 +1,19 @@
-"""Golden model, sinh ảnh thử và chạy mô phỏng Icarus Verilog cho bộ lọc trung bình 3x3 SIMD."""
+"""Ảnh chuẩn (SciPy), sinh ảnh thử và chạy mô phỏng Icarus Verilog cho bộ lọc 3x3 SIMD (trung bình hoặc Gaussian)."""
 import os
 import re
 import subprocess
 from pathlib import Path
 
 import numpy as np
+from scipy.signal import convolve2d
 
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "build"
 RTL = ["pipe_reg.v", "line_buffer.v", "controller.v", "window_3x3.v",
-       "simd_lane.v", "simd_array.v", "top.v"]
+       "simd_lane.v", "gauss_lane.v", "simd_array.v", "top.v"]
+
+# Nhân Gaussian 3x3 [1 2 1; 2 4 2; 1 2 1] / 16 (tổng trọng số 16: chia 16 là dịch phải 4 bit trong mạch)
+K_GAUSS = np.array([[1, 2, 1], [2, 4, 2], [1, 2, 1]], dtype=np.int32)
 
 
 def make_image(kind, w, h, seed=2026):
@@ -41,11 +45,18 @@ def make_image(kind, w, h, seed=2026):
     raise ValueError(kind)
 
 
-def golden(img):
-    """Trung bình 3x3, chia nguyên cho 9, chỉ giữ pixel đủ 8 lân cận: ảnh ra (h-2) x (w-2)."""
-    a = img.astype(np.int32)
-    h, w = a.shape
-    s = sum(a[i:h - 2 + i, j:w - 2 + j] for i in range(3) for j in range(3))
+def golden(img, op=0):
+    """Ảnh chuẩn để kiểm mạch, lấy từ thư viện SciPy (không tự viết phép lọc):
+    scipy.signal.convolve2d với nhân 3x3, mode="valid" (chỉ giữ pixel đủ 8 lân cận, ảnh ra (h-2) x (w-2)); số nguyên
+    nên tổng chính xác. op = 0: nhân toàn 1, pixel ra = phần nguyên của tổng chia 9 (định nghĩa của đề bài);
+    op = 1: nhân Gaussian K_GAUSS, pixel ra = phần nguyên của tổng chia 16.
+    scripts/so_voi_thu_vien.py kiểm chéo thêm bằng OpenCV."""
+    h, w = img.shape
+    if h < 3 or w < 3:  # không có pixel ra (đúng thiết kế)
+        return np.zeros((max(h - 2, 0), max(w - 2, 0)), dtype=np.uint8)
+    if op == 1:
+        return (convolve2d(img.astype(np.int32), K_GAUSS, mode="valid") // 16).astype(np.uint8)
+    s = convolve2d(img.astype(np.int32), np.ones((3, 3), dtype=np.int32), mode="valid")
     return (s // 9).astype(np.uint8)
 
 
@@ -53,8 +64,15 @@ def write_hex(path, arr):
     Path(path).write_text("\n".join(f"{v:02x}" for v in arr.ravel()) + "\n")
 
 
-def read_hex(path):
-    return np.array([int(t, 16) for t in Path(path).read_text().split()], dtype=np.uint8)
+def read_hex(path, allow_x=False):
+    """Đọc file hex. Giá trị không xác định (x/z của Verilog) gây lỗi, trừ khi allow_x: khi đó đổi thành 0
+    và trả thêm số giá trị không xác định (dùng cho phép thử đối chứng)."""
+    toks = Path(path).read_text().split()
+    nx = sum(1 for t in toks if not all(c in "0123456789abcdefABCDEF" for c in t))
+    if nx and not allow_x:
+        raise ValueError(f"{path}: {nx} giá trị không xác định (x/z)")
+    arr = np.array([int(t, 16) if all(c in "0123456789abcdefABCDEF" for c in t) else 0 for t in toks], dtype=np.uint8)
+    return (arr, nx) if allow_x else arr
 
 
 def _rel(path):
@@ -65,21 +83,26 @@ def _rel(path):
         return str(path)
 
 
-def simulate_frames(imgs, p, b=None, stall=0, seed=0x1234ABCD, tag="run", vcd=None, rtl_dir=None):
+def simulate_frames(imgs, p, b=None, stall=0, seed=0x1234ABCD, tag="run", vcd=None, rtl_dir=None, ops=None):
     """Chạy RTL với P lane trên một dãy khung ảnh cùng kích thước, đưa liên tiếp không reset giữa các khung.
     b: pixel cấp mỗi chu kỳ (mặc định p); stall: xác suất % mỗi chu kỳ bị ngắt quãng.
-    rtl_dir: thư mục RTL khác (dùng cho phép thử đối chứng). Trả về (danh sách ảnh ra, số liệu chu kỳ, danh sách ảnh chuẩn)."""
+    rtl_dir: thư mục RTL khác (dùng cho phép thử đối chứng).
+    ops: chế độ lọc của từng khung (0 trung bình, 1 Gaussian): một số dùng chung hoặc một danh sách; chỉ đổi giữa các khung.
+    Trả về (danh sách ảnh ra, số liệu chu kỳ, danh sách ảnh chuẩn)."""
     h, w = imgs[0].shape
+    ops = [0] * len(imgs) if ops is None else ([ops] * len(imgs) if isinstance(ops, int) else list(ops))
+    assert len(ops) == len(imgs) <= 32 and set(ops) <= {0, 1}
+    ops_mask = sum(o << f for f, o in enumerate(ops))
     b = p if b is None else b
     BUILD.mkdir(exist_ok=True)
     f_in, f_out, f_exp = BUILD / f"{tag}_in.hex", BUILD / f"{tag}_out.hex", BUILD / f"{tag}_exp.hex"
     vvp = BUILD / f"{tag}.vvp"
-    refs = [golden(im) for im in imgs]
+    refs = [golden(im, op) for im, op in zip(imgs, ops)]
     write_hex(f_in, np.concatenate([im.ravel() for im in imgs]))
     write_hex(f_exp, np.concatenate([r.ravel() for r in refs]))
     cmd = ["iverilog", "-g2012", f"-Ptb_top.P={p}", f"-Ptb_top.W={w}", f"-Ptb_top.H={h}",
            f"-Ptb_top.F={len(imgs)}", f"-Ptb_top.B={b}", f"-Ptb_top.STALL={stall}", f"-Ptb_top.SEED={seed}",
-           "-o", str(vvp)] + [str((rtl_dir or ROOT / "rtl") / f) for f in RTL] + [str(ROOT / "tb" / "tb_top.v")]
+           f"-Ptb_top.OPS={ops_mask}", "-o", str(vvp)] + [str((rtl_dir or ROOT / "rtl") / f) for f in RTL] + [str(ROOT / "tb" / "tb_top.v")]
     subprocess.run(cmd, check=True)
     # Testbench đọc tên file vào thanh ghi 1024 bit (tối đa 128 ký tự), nên truyền đường dẫn tương đối so với ROOT
     run = ["vvp", str(vvp), f"+in={_rel(f_in)}", f"+out={_rel(f_out)}", f"+exp={_rel(f_exp)}"]
@@ -88,19 +111,24 @@ def simulate_frames(imgs, p, b=None, stall=0, seed=0x1234ABCD, tag="run", vcd=No
     out = subprocess.run(run, check=True, capture_output=True, text=True, cwd=ROOT).stdout
     m = re.search(r"RESULT (.*)", out)
     stats = {k: int(v) for k, v in (t.split("=") for t in m.group(1).split())}
-    res = read_hex(f_out).reshape(len(imgs), h - 2, w - 2)
+    # Ảnh có W < 3 hoặc H < 3 không có pixel ra (đúng thiết kế): ảnh ra rỗng
+    # Chỉ phép thử đối chứng (rtl_dir khác) mới chấp nhận pixel ra không xác định; số này ghi vào stats["x_out"]
+    flat, stats["x_out"] = read_hex(f_out, allow_x=True) if rtl_dir else (read_hex(f_out), 0)
+    res = flat.reshape(len(imgs), max(h - 2, 0), max(w - 2, 0))
     for f in (f_in, f_out, f_exp, vvp):
         f.unlink()
     return list(res), stats, refs
 
 
-def simulate(img, p, b=None, tag="run", stall=0, vcd=None):
-    """Một khung ảnh. Trả về (ảnh ra, số liệu chu kỳ)."""
-    res, stats, _ = simulate_frames([img], p, b=b, stall=stall, tag=tag, vcd=vcd)
+def simulate(img, p, b=None, tag="run", stall=0, vcd=None, op=0):
+    """Một khung ảnh. op: 0 lọc trung bình, 1 lọc Gaussian. Trả về (ảnh ra, số liệu chu kỳ)."""
+    res, stats, _ = simulate_frames([img], p, b=b, stall=stall, tag=tag, vcd=vcd, ops=op)
     return res[0], stats
 
 
 def compare(res, ref):
     """Số pixel sai, sai số tuyệt đối lớn nhất, sai số tuyệt đối trung bình."""
     d = np.abs(res.astype(np.int32) - ref.astype(np.int32))
+    if d.size == 0:
+        return 0, 0, 0.0
     return int((d != 0).sum()), int(d.max()), float(d.mean())
