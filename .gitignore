@@ -21,10 +21,7 @@ Thumbs.db
 .idea/
 
 # Không đưa lên kho: tài liệu nội bộ, slide, hình, script vẽ hình/dựng tài liệu, chuẩn bị ảnh thật
-bao_cao.md
-PHAN_CONG.md
-ontap_van_dap.md
-On_tap_van_dap.pdf
+docs/
 Bao_cao/
 figures/
 data/
@@ -44,4 +41,3 @@ scripts/danh_gia_sar.py
 scripts/so_voi_thu_vien.py
 results/so_thu_vien.json
 scripts/make_dataflow.py
-BANG_NGUOI_NOI.md
